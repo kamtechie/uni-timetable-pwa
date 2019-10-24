@@ -11,6 +11,7 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader';
+import { Redirect } from 'react-router-dom';
 
 
 const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
@@ -45,6 +46,7 @@ export default function TimetableView() {
     const classes = useStyles();
     const [id, setID] = useState(null);
     get('identifier').then(val => setID(val));
+    console.log("Logged in ID:" + id);
     return (
         <div class="timetable-view">
             <AppBar position="static" color="default">
@@ -84,9 +86,8 @@ export default function TimetableView() {
                             </ul>
                         </li>
                     ))}
-
                 </List>
             </div>
-        </div >
+        </div>
     )
 }

@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
+import { auth } from '../utils/auth';
 import { set } from 'idb-keyval';
+import { Redirect, useHistory, useLocation } from 'react-router-dom';
 
 const useStyles = makeStyles(theme => ({
     loginRoot: {
@@ -25,6 +27,15 @@ const useStyles = makeStyles(theme => ({
 export default function UserLogin() {
     const [url, setUrl] = useState(null);
     const classes = useStyles();
+    let history = useHistory();
+    let location = useLocation();
+
+    let { from } = location.state || { from: { pathname: "/" } };
+    let login = () => {
+        auth.authenticate(() => {
+            history.replace(from);
+        });
+    };
 
     function onChange(e) {
         setUrl(e.target.value);
@@ -33,7 +44,9 @@ export default function UserLogin() {
     function onSubmit() {
         const params = new URLSearchParams(url.split('?')[1]);
         const id = params.get('identifier');
-        set('identifier', id); //stores in indexeddb
+        // setID(id);
+        // set('identifier', id); //stores in indexeddb
+        login(id);
     }
     return (
         <div className={classes.loginRoot}>
