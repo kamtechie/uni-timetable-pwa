@@ -38,15 +38,33 @@ const useStyles = makeStyles(theme => ({
     times: {
         display: 'flex',
         flexDirection: 'column',
-        fontFamily: 'Roboto' 
+        fontFamily: 'Roboto'
     }
 }));
 
 export default function TimetableView() {
     const classes = useStyles();
     const [id, setID] = useState(null);
+    const [week_data, setWeekData] = useState({});
     get('identifier').then(val => setID(val));
     console.log("Logged in ID:" + id);
+    async function getTimetable() {
+        fetch('https://cors.aaronrosser.xyz/leeds/timetable/proxy.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            },
+            body: 'identifier=1655566&week=7'
+        })
+            .then(res => res.json())
+            .then(data => { console.log(data); setWeekData(data) });
+    }
+    if (Object.getOwnPropertyNames(week_data).length === 0) {
+        getTimetable();
+    }
+    // getTimetable();
+    console.log(Object.getOwnPropertyNames(week_data).length === 0);
+    console.log(week_data);
     return (
         <div class="timetable-view">
             <AppBar position="static" color="default">
@@ -56,38 +74,46 @@ export default function TimetableView() {
                     </Typography>
                 </Toolbar>
             </AppBar>
-            <div class="timetable-content">
-                <List className={classes.list} subheader={<li />}>
-                    {data["timetable"].map((day, index) => (
-                        <li key={`day-${index + 1}`} className={classes.listSection}>
-                            <ul className={classes.ul}>
-                                <ListSubheader>{daysOfWeek[index]}</ListSubheader>
-                                {day.map((event, eventIndex) => (
-                                    <React.Fragment>
-                                        <Card className={classes.card}>
-                                            <ListItem key={`event-${index + 1}-${eventIndex}`} alignItems="flex-start">
-                                                <ListItemIcon>
-                                                    <div className={classes.times}>
-                                                        <span>{event.start}</span>
-                                                        <span>{event.end}</span>
-                                                    </div>
-                                                </ListItemIcon>
-                                                <ListItemText primary={event.moduleCode + ' - ' + event.moduleTitle} secondary={
-                                                    <React.Fragment>
-                                                        <span>{event.type}</span>
-                                                        <br />
-                                                        <span>{event.location}</span>
-                                                    </React.Fragment>
-                                                } />
-                                            </ListItem>
-                                        </Card>
-                                    </React.Fragment>
-                                ))}
-                            </ul>
-                        </li>
-                    ))}
-                </List>
-            </div>
+            {Object.getOwnPropertyNames(week_data).length === 0 ? <span>Loading..</span> :
+                <div class="timetable-content">
+                    <List className={classes.list} subheader={<li />}>
+                        {week_data["timetable"].map((day, index) => (
+                            <li key={`day-${index + 1}`} className={classes.listSection}>
+                                <ul className={classes.ul}>
+                                    <ListSubheader>{daysOfWeek[index]}</ListSubheader>
+                                    {day.map((event, eventIndex) => (
+                                        <React.Fragment>
+                                            <Card className={classes.card}>
+                                                <ListItem key={`event-${index + 1}-${eventIndex}`} alignItems="flex-start">
+                                                    <ListItemIcon>
+                                                        <div className={classes.times}>
+                                                            <span>{event.start}</span>
+                                                            <span>{event.end}</span>
+                                                        </div>
+                                                    </ListItemIcon>
+                                                    <ListItemText primary={event.moduleCode + ' - ' + event.moduleTitle} secondary={
+                                                        <React.Fragment>
+                                                            <span>{event.type}</span>
+                                                            <br />
+                                                            <span>{event.location}</span>
+                                                        </React.Fragment>
+                                                    } />
+                                                </ListItem>
+                                            </Card>
+                                        </React.Fragment>
+                                    ))}
+                                </ul>
+                            </li>
+                        ))}
+                    </List>
+                </div>
+            }
+            <AppBar position="fixed" color="primary" className={classes.bottomBar}>
+                <Toolbar>
+
+                </Toolbar>
+            </AppBar>
         </div>
+
     )
 }
